@@ -1,12 +1,26 @@
 const express = require("express");
 const auth = require("../middleware/auth.middleware");
 const User = require("../models/User");
+const Showcase = require("../models/Showcase");
 const router = express.Router({ mergeParams: true });
 
 router.get("/", auth, async (req, res) => {
   try {
-    const list = await User.find();
-    res.send(list);
+    res.send(req.user);
+  } catch (e) {
+    console.log(e);
+    res
+      .status(500)
+      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+  }
+});
+
+router.patch("/", auth, async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(req.user.id, req.body, {
+      new: true,
+    });
+    res.send(updatedUser);
   } catch (e) {
     res
       .status(500)
@@ -14,21 +28,12 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-router.patch("/:id", auth, async (req, res) => {
+router.get("/showcase", auth, async (req, res) => {
   try {
-    const { id } = req.params;
-
-    if (id === req.user._id) {
-      const updatedUser = await User.findByIdAndUpdate(id, req.body, {
-        new: true,
-      });
-      res.send(updatedUser);
-    } else {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    }
+    const showcases = await Showcase.find({ owner: req.user._id });
+    res.send(showcases);
   } catch (e) {
+    console.log(e);
     res
       .status(500)
       .json({ message: "На сервере произошла ошибка. Попробуйте позже." });

@@ -5,11 +5,11 @@ const schema = new Schema(
     name: { type: String, requared: true },
     description: { type: String, requared: true },
     img: String,
-    rate: Number,
+    rate: { type: String, default: 0, requared: true },
     price: { type: Number, requared: true },
-    category: {
+    classifire: {
       type: Schema.Types.ObjectId,
-      ref: "Classifire",
+      ref: "ProductClassifier",
       requared: true,
     },
     showcase: { type: Schema.Types.ObjectId, ref: "Showcase", requared: true },

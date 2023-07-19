@@ -2,13 +2,14 @@ const { Schema, model } = require("mongoose");
 
 const schema = new Schema(
   {
-    class: { type: String, requared: true },
+    classifire: { type: String, requared: true },
     baseNumber: { type: String, requared: true },
     name: { type: String, requared: true },
   },
   {
     timestamps: true,
+    collection: "productsClassifire",
   }
 );
 
-module.exports = model("Classifier", schema);
+module.exports = model("ProductClassifier", schema);

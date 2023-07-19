@@ -1,6 +1,7 @@
 const tokenService = require("../services/token.services");
+const User = require("../models/User");
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
   if (req.method === "OPTIONS") {
     return next();
   }
@@ -17,7 +18,7 @@ module.exports = (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    req.user = data;
+    req.user = await User.findById(data._id);
     next();
   } catch (e) {
     res.status(401).json({

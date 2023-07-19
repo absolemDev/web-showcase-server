@@ -1,10 +1,10 @@
 const chalk = require("chalk");
 const classifierMock = require("../mock/classifier.json");
-const Classifier = require("../models/Classifier");
+const ProductClassifier = require("../models/ProductClassifier");
 const progressBar = require("cli-progress");
 
 module.exports = async () => {
-  const classifier = await Classifier.find();
+  const classifier = await ProductClassifier.find();
   if (classifier.length !== classifierMock.length) {
     const progress = new progressBar.SingleBar(
       { hideCursor: true },
@@ -12,7 +12,7 @@ module.exports = async () => {
     );
     console.log(chalk.green("Loading classifier:"));
     progress.start(classifierMock.length, 0);
-    await createInitialEntity(Classifier, classifierMock, progress);
+    await createInitialEntity(ProductClassifier, classifierMock, progress);
     progress.stop();
     console.log(chalk.green("Done."));
   }
