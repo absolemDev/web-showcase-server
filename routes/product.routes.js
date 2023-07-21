@@ -12,6 +12,7 @@ const {
 const category = require("../middleware/category.middleware");
 const Category = require("../models/Category");
 const Comment = require("../models/Comment");
+const Showcase = require("../models/Showcase");
 const router = express.Router({ mergeParams: true });
 
 router
@@ -38,6 +39,7 @@ router
   })
   .post(auth, showcaseExist, showcaseAccess, category, async (req, res) => {
     try {
+      const response = {};
       const newProduct = await Product.create({
         ...req.body,
         classifire: req.body.classifire,
@@ -55,18 +57,21 @@ router
       });
       if (req.categoryIsNew) {
         await req.category.populate("classifire");
-        res.send({
-          newProduct,
-          category: {
-            _id: req.category._id,
-            name: req.category.classifire.name,
-            classifire: req.category.classifire._id,
-          },
-        });
-      } else {
-        res.send(newProduct);
-        await req.category.populate("classifire");
+        response.category = {
+          _id: req.category._id,
+          name: req.category.classifire.name,
+          classifire: req.category.classifire._id,
+        };
       }
+      response.showcase = await Showcase.findById(
+        req.showcase._id,
+        "_id name description img address owner classifire"
+      );
+      response.product = await Product.findById(
+        newProduct._id,
+        "_id name description img price showcase classifire owner"
+      );
+      res.send(response);
     } catch (e) {
       console.log(e);
       res
@@ -97,10 +102,93 @@ router
     category,
     async (req, res) => {
       try {
-        req.product = { ...req.product, ...req.body };
-        await req.product.save();
-        res.send(req.product);
+        const response = {};
+        if (
+          req.product.classifire.toString() ===
+          req.category.classifire.toString()
+        ) {
+          response.product = await Product.findByIdAndUpdate(
+            req.product._id,
+            req.body,
+            { new: true },
+            { select: "_id name description img owner price classifire" }
+          );
+        } else {
+          const oldCategory = await Category.findOne({
+            classifire: req.product.classifire,
+          });
+          await req.showcase.populate("products");
+          const classifireProducts = new Set(
+            req.showcase.products
+              .filter(
+                (item) => item._id.toString() !== req.product._id.toString()
+              )
+              .map((item) => {
+                return item.classifire.toString();
+              })
+          );
+          if (classifireProducts.has(oldCategory.classifire.toString())) {
+            await oldCategory
+              .updateOne({
+                $pull: { products: req.product._id },
+              })
+              .exec();
+            await req.category.updateOne({
+              $addToSet: { product: req.product._id },
+            });
+          } else {
+            await req.showcase.updateOne({
+              $pull: { classifire: oldCategory.classifire },
+            });
+            await oldCategory
+              .updateOne({
+                $pull: {
+                  products: req.product._id,
+                  showcases: req.showcase._id,
+                },
+              })
+              .exec();
+          }
+          await req.showcase
+            .updateOne({
+              $addToSet: { classifire: req.category.classifire },
+            })
+            .exec();
+          response.showcase = await Showcase.findById(
+            req.showcase._id,
+            "_id name description img address owner classifire"
+          );
+          await req.category.updateOne({
+            $addToSet: {
+              products: req.product._id,
+              showcases: req.showcase._id,
+            },
+          });
+          if (req.categoryIsNew) {
+            await req.category.populate("classifire");
+            response.categoryNew = {
+              _id: req.category._id,
+              name: req.category.classifire.name,
+              classifire: req.category.classifire._id,
+            };
+          }
+          const { _id, showcases, products } = await Category.findById(
+            oldCategory._id
+          );
+          if (showcases.length === 0 && products.length === 0) {
+            await Category.deleteOne({ _id });
+            response.categoryRemoved = _id;
+          }
+          response.product = await Product.findByIdAndUpdate(
+            req.product._id,
+            req.body,
+            { new: true },
+            { select: "_id name description img owner price classifire" }
+          );
+        }
+        res.send(response);
       } catch (e) {
+        console.log(e);
         res
           .status(500)
           .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
@@ -125,9 +213,9 @@ router
         await req.showcase.updateOne({ $pull: { products: req.product._id } });
         await req.showcase.populate("products");
         const classifireProducts = new Set(
-          req.showcase.products.map((item) => item.classifire)
+          req.showcase.products.map((item) => item.classifire.toString())
         );
-        if (!classifireProducts.has(req.product.classifire)) {
+        if (!classifireProducts.has(req.product.classifire.toString())) {
           await category
             .clone()
             .updateOne({ $pull: { showcases: req.showcase._id } });

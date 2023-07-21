@@ -19,7 +19,10 @@ router
       const list =
         orderBy && equalTo
           ? await Showcase.find({ [orderBy]: equalTo })
-          : await Showcase.find({}, "_id name description img address owner");
+          : await Showcase.find(
+              {},
+              "_id name description img address owner classifire"
+            );
       res.send(list);
     } catch (e) {
       res
@@ -34,7 +37,11 @@ router
         owner: req.user._id,
       });
       await req.user.updateOne({ $addToSet: { showcases: newShowcase._id } });
-      res.status(201).send(newShowcase);
+      const showcase = await Showcase.findById(
+        newShowcase._id,
+        "_id name description img address owner classifire"
+      );
+      res.status(201).send(showcase);
     } catch (e) {
       console.log(e);
       res
@@ -58,12 +65,11 @@ router
   })
   .patch(auth, showcaseExist, showcaseAccess, async (req, res) => {
     try {
-      console.log(req.query, req.params);
       const showcase = await Showcase.findByIdAndUpdate(
         req.showcase._id,
         req.body,
         { new: true },
-        { select: "_id name description img address owner" }
+        { select: "_id name description img address owner classifire" }
       );
       res.send(showcase);
     } catch (e) {
@@ -96,6 +102,7 @@ router
         }
       }
       await Showcase.deleteOne({ _id: req.showcase._id });
+      req.user.updateOne({ $pull: { showcases: req.showcase._id } });
       if (deletedCategories.length > 0) {
         res.send({ deletedCategories });
       } else {
