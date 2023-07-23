@@ -24,11 +24,11 @@ router
         orderBy && equalTo
           ? await Product.find(
               { [orderBy]: equalTo },
-              "_id name description img price showcase classifire owner"
+              "_id name description img price showcase classifire owner rate"
             )
           : await Product.find(
               {},
-              "_id name description img price showcase classifire owner"
+              "_id name description img price showcase classifire owner rate"
             );
       res.send(list);
     } catch (e) {
@@ -65,11 +65,11 @@ router
       }
       response.showcase = await Showcase.findById(
         req.showcase._id,
-        "_id name description img address owner classifire"
+        "_id name description img address owner classifire rate"
       );
       response.product = await Product.findById(
         newProduct._id,
-        "_id name description img price showcase classifire owner"
+        "_id name description img price showcase classifire owner rate"
       );
       res.send(response);
     } catch (e) {
@@ -111,7 +111,7 @@ router
             req.product._id,
             req.body,
             { new: true },
-            { select: "_id name description img owner price classifire" }
+            { select: "_id name description img owner price classifire rate" }
           );
         } else {
           const oldCategory = await Category.findOne({
@@ -156,7 +156,7 @@ router
             .exec();
           response.showcase = await Showcase.findById(
             req.showcase._id,
-            "_id name description img address owner classifire"
+            "_id name description img address owner classifire rate"
           );
           await req.category.updateOne({
             $addToSet: {
@@ -183,7 +183,7 @@ router
             req.product._id,
             req.body,
             { new: true },
-            { select: "_id name description img owner price classifire" }
+            { select: "_id name description img owner price classifire rate" }
           );
         }
         res.send(response);
@@ -203,6 +203,7 @@ router
     productAccess,
     async (req, res) => {
       try {
+        const response = {};
         const category = Category.findOne({
           classifire: req.product.classifire,
         });
@@ -213,7 +214,11 @@ router
         await req.showcase.updateOne({ $pull: { products: req.product._id } });
         await req.showcase.populate("products");
         const classifireProducts = new Set(
-          req.showcase.products.map((item) => item.classifire.toString())
+          req.showcase.products
+            .filter(
+              (item) => item._id.toString() !== req.product._id.toString()
+            )
+            .map((item) => item.classifire.toString())
         );
         if (!classifireProducts.has(req.product.classifire.toString())) {
           await category
@@ -222,15 +227,18 @@ router
           await req.showcase.updateOne({
             $pull: { classifire: req.product.classifire },
           });
+          response.showcase = await Showcase.findById(
+            req.showcase._id,
+            "_id name description img address owner classifire rate"
+          );
         }
         await Product.deleteOne({ _id: req.product._id });
         const { _id, showcases, products } = await category.exec();
         if (showcases.length === 0 && products.length === 0) {
           await Category.deleteOne({ _id });
-          res.send({ categoryRemove: _id });
-        } else {
-          res.send(null);
+          response.categoryRemove = _id;
         }
+        res.send(response);
       } catch (e) {
         console.log(e);
         res

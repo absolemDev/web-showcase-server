@@ -6,7 +6,10 @@ const schema = new Schema(
     description: { type: String, requared: true },
     img: String,
     address: String,
-    rate: { type: String, default: 0, requared: true },
+    rate: {
+      type: Schema.Types.Mixed,
+      default: { amount: 0, count: 0 },
+    },
     contacts: [Object],
     owner: { type: Schema.Types.ObjectId, ref: "User", requared: true },
     classifire: [{ type: Schema.Types.ObjectId, ref: "ProductClassifier" }],

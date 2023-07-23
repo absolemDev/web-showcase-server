@@ -21,7 +21,7 @@ router
           ? await Showcase.find({ [orderBy]: equalTo })
           : await Showcase.find(
               {},
-              "_id name description img address owner classifire"
+              "_id name description img address owner classifire rate"
             );
       res.send(list);
     } catch (e) {
@@ -39,7 +39,7 @@ router
       await req.user.updateOne({ $addToSet: { showcases: newShowcase._id } });
       const showcase = await Showcase.findById(
         newShowcase._id,
-        "_id name description img address owner classifire"
+        "_id name description img address owner classifire rate"
       );
       res.status(201).send(showcase);
     } catch (e) {
@@ -69,7 +69,7 @@ router
         req.showcase._id,
         req.body,
         { new: true },
-        { select: "_id name description img address owner classifire" }
+        { select: "_id name description img address owner classifire rate" }
       );
       res.send(showcase);
     } catch (e) {

@@ -5,10 +5,9 @@ const router = express.Router({ mergeParams: true });
 
 router
   .route("/")
-  .get(auth, async (req, res) => {
+  .get(async (req, res) => {
     try {
-      const { orderBy, equalTo } = req.query;
-      const list = await Comment.find({ [orderBy]: equalTo });
+      const list = await Comment.find();
       res.send(list);
     } catch (e) {
       res
