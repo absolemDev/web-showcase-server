@@ -6,7 +6,6 @@ module.exports = {
       return next();
     }
     try {
-      console.log("Params in SE:", req.params);
       const idShowcase = req.params.idShowcase
         ? req.params.idShowcase
         : req.query.idShowcase;

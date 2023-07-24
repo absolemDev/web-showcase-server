@@ -6,6 +6,18 @@ const router = express.Router({ mergeParams: true });
 
 router.get("/", auth, async (req, res) => {
   try {
+    const users = await User.find({}, "_id name img");
+    res.send(users);
+  } catch (e) {
+    console.log(e);
+    res
+      .status(500)
+      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+  }
+});
+
+router.get("/:id", auth, async (req, res) => {
+  try {
     res.send(req.user);
   } catch (e) {
     console.log(e);
@@ -22,18 +34,6 @@ router.patch("/", auth, async (req, res) => {
     });
     res.send(updatedUser);
   } catch (e) {
-    res
-      .status(500)
-      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
-  }
-});
-
-router.get("/showcase", auth, async (req, res) => {
-  try {
-    const showcases = await Showcase.find({ owner: req.user._id });
-    res.send(showcases);
-  } catch (e) {
-    console.log(e);
     res
       .status(500)
       .json({ message: "На сервере произошла ошибка. Попробуйте позже." });

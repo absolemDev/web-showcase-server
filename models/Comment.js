@@ -6,10 +6,10 @@ const schema = new Schema(
     content: { type: String, requared: true },
     targetId: { type: Schema.Types.ObjectId, ref: "Product", requared: true },
     userId: { type: Schema.Types.ObjectId, ref: "User", requared: true },
-    reply: String,
+    reply: { type: Schema.Types.Mixed },
   },
   {
-    timestamps: { createdAt: "created_at" },
+    timestamps: true,
   }
 );
 

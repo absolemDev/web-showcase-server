@@ -35,7 +35,7 @@ router.post("/signUp", [
 
       const hashedPassword = await bcrypt.hash(password, 12);
       const newUser = await User.create({
-        ...generateUserData(),
+        img: "https://siasic.strathmore.edu/wp-content/uploads/2018/07/placeholder-200x200.jpg",
         ...req.body,
         password: hashedPassword,
       });
@@ -43,12 +43,10 @@ router.post("/signUp", [
       const tokens = tokenService.generate({ _id: newUser._id });
       await tokenService.save(newUser._id, tokens.refreshToken);
 
-      res
-        .status(201)
-        .send({
-          authData: { ...tokens, userId: newUser._id },
-          userData: { newUser },
-        });
+      res.status(201).send({
+        authData: { ...tokens, userId: newUser._id },
+        userData: { newUser },
+      });
     } catch (e) {
       res
         .status(500)
