@@ -4,7 +4,7 @@ const User = require("../models/User");
 const Showcase = require("../models/Showcase");
 const router = express.Router({ mergeParams: true });
 
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const users = await User.find({}, "_id name img");
     res.send(users);

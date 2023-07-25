@@ -6,10 +6,10 @@ const router = express.Router({ mergeParams: true });
 router.get("/", async (req, res) => {
   try {
     const { name } = req.query;
-    const reg = new RegExp(name, "i");
+    const reg = new RegExp(`^${name}|[^а-яА-Я]${name}`, "i");
     const list = await ProductClassifire.find({
       name: reg,
-    });
+    }).sort("name");
     res.send(list);
   } catch (e) {
     console.log(e);
