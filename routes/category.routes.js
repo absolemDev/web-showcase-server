@@ -7,6 +7,8 @@ const router = express.Router({ mergeParams: true });
 router.get("/", async (req, res) => {
   try {
     const list = await Category.find({}).populate("classifire");
+    list.sort((a, b) => (a.classifire.name > b.classifire.name ? 1 : -1));
+    console.log(list);
     res.send(
       list.map((item) => ({
         _id: item._id,
