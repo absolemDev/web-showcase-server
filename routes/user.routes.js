@@ -18,7 +18,8 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", auth, async (req, res) => {
   try {
-    res.send(req.user);
+    const { _id, name, img } = req.user;
+    res.send({ _id, name, img });
   } catch (e) {
     console.log(e);
     res
