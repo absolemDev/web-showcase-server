@@ -43,10 +43,7 @@ router.post("/signUp", [
       const tokens = tokenService.generate({ _id: newUser._id });
       await tokenService.save(newUser._id, tokens.refreshToken);
 
-      res.status(201).send({
-        authData: { ...tokens, userId: newUser._id },
-        userData: { newUser },
-      });
+      res.status(201).send({ ...tokens, userId: newUser._id });
     } catch (e) {
       res
         .status(500)
@@ -97,12 +94,8 @@ router.post("/signInWithPassword", [
       const tokens = tokenService.generate({ _id: existingUser._id });
       await tokenService.save(existingUser._id, tokens.refreshToken);
       res.status(201).send({
-        authData: {
-          ...tokens,
-          userId: existingUser._id,
-          showcases: existingUser.showcases,
-        },
-        userData: existingUser,
+        ...tokens,
+        userId: existingUser._id,
       });
     } catch (e) {
       console.log(e);
