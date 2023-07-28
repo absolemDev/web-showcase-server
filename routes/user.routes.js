@@ -10,34 +10,18 @@ router.get("/", async (req, res) => {
     res.send(users);
   } catch (e) {
     console.log(e);
-    res
-      .status(500)
-      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
-  }
-});
-
-router.get("/:id", auth, async (req, res) => {
-  try {
-    const { _id, name, img } = req.user;
-    res.send({ _id, name, img });
-  } catch (e) {
-    console.log(e);
-    res
-      .status(500)
-      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+    res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
   }
 });
 
 router.patch("/", auth, async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, req.body, {
+    const { _id, name, img } = await User.findByIdAndUpdate(req.user._id, req.body, {
       new: true,
     });
-    res.send(updatedUser);
+    res.send({ _id, name, img });
   } catch (e) {
-    res
-      .status(500)
-      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+    res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
   }
 });
 

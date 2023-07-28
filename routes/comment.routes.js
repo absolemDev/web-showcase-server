@@ -12,9 +12,7 @@ router
       const list = await Comment.find();
       res.send(list);
     } catch (e) {
-      res
-        .status(500)
-        .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+      res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
     }
   })
   .post(auth, async (req, res) => {
@@ -36,9 +34,7 @@ router
       );
       res.status(201).send(response);
     } catch (e) {
-      res
-        .status(500)
-        .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+      res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
     }
   });
 
@@ -56,9 +52,7 @@ router.delete("/:id", auth, async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+    res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
   }
 });
 
@@ -75,9 +69,7 @@ router.patch("/:id", auth, async (req, res) => {
     res.send(comment);
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+    res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
   }
 });
 
