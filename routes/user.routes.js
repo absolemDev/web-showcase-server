@@ -1,7 +1,6 @@
 const express = require("express");
 const auth = require("../middleware/auth.middleware");
 const User = require("../models/User");
-const Showcase = require("../models/Showcase");
 const router = express.Router({ mergeParams: true });
 
 router.get("/", async (req, res) => {
@@ -9,19 +8,26 @@ router.get("/", async (req, res) => {
     const users = await User.find({}, "_id name img");
     res.send(users);
   } catch (e) {
-    console.log(e);
-    res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+    res
+      .status(500)
+      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
   }
 });
 
 router.patch("/", auth, async (req, res) => {
   try {
-    const { _id, name, img } = await User.findByIdAndUpdate(req.user._id, req.body, {
-      new: true,
-    });
+    const { _id, name, img } = await User.findByIdAndUpdate(
+      req.user._id,
+      req.body,
+      {
+        new: true,
+      }
+    );
     res.send({ _id, name, img });
   } catch (e) {
-    res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+    res
+      .status(500)
+      .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
   }
 });
 

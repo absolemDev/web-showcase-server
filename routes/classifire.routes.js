@@ -12,7 +12,6 @@ router.get("/", async (req, res) => {
     }).sort("name");
     res.send(list);
   } catch (e) {
-    console.log(e);
     res
       .status(500)
       .json({ message: "На сервере произошла ошибка. Попробуйте позже." });

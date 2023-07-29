@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const tokenService = require("../services/token.services");
 const { check, validationResult } = require("express-validator");
-const { generateUserData } = require("../utils/helpers");
 const router = express.Router({ mergeParams: true });
 
 router.post("/signUp", [
@@ -43,7 +42,10 @@ router.post("/signUp", [
       const tokens = tokenService.generate({ _id: newUser._id });
       await tokenService.save(newUser._id, tokens.refreshToken);
 
-      res.status(201).send({ ...tokens, userId: newUser._id });
+      res.status(201).send({
+        authData: { ...tokens, userId: newUser._id },
+        userData: { _id: newUser._id, name: newUser.name, img: newUser.img },
+      });
     } catch (e) {
       res
         .status(500)
@@ -51,6 +53,7 @@ router.post("/signUp", [
     }
   },
 ]);
+
 router.post("/signInWithPassword", [
   check("email", "Email некорректный").normalizeEmail().isEmail(),
   check("password", "Пароль не может быть пустым").exists(),
@@ -98,13 +101,13 @@ router.post("/signInWithPassword", [
         userId: existingUser._id,
       });
     } catch (e) {
-      console.log(e);
       res
         .status(500)
         .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
     }
   },
 ]);
+
 router.post("/token", async (req, res) => {
   try {
     const { refresh_token: refreshToken } = req.body;

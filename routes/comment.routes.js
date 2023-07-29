@@ -12,7 +12,9 @@ router
       const list = await Comment.find();
       res.send(list);
     } catch (e) {
-      res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+      res
+        .status(500)
+        .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
     }
   })
   .post(auth, async (req, res) => {
@@ -34,43 +36,48 @@ router
       );
       res.status(201).send(response);
     } catch (e) {
-      res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+      res
+        .status(500)
+        .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
     }
   });
 
-router.delete("/:id", auth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const removedComment = await Comment.findById(id);
-    if (removedComment.userId.toString() === req.user._id.toString()) {
-      await Comment.deleteOne({ _id: id });
-      return res.send(null);
-    } else {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
+router
+  .route("/:id")
+  .delete(auth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const removedComment = await Comment.findById(id);
+      if (removedComment.userId.toString() === req.user._id.toString()) {
+        await Comment.deleteOne({ _id: id });
+        return res.send(null);
+      } else {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
+    } catch (e) {
+      res
+        .status(500)
+        .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
     }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
-  }
-});
-
-router.patch("/:id", auth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const comment = await Comment.findByIdAndUpdate(
-      id,
-      {
-        reply: { ...req.body, createdAt: new Date() },
-      },
-      { new: true }
-    );
-    res.send(comment);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "На сервере произошла ошибка. Попробуйте позже." });
-  }
-});
+  })
+  .patch(auth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const comment = await Comment.findByIdAndUpdate(
+        id,
+        {
+          reply: { ...req.body, createdAt: new Date() },
+        },
+        { new: true }
+      );
+      res.send(comment);
+    } catch (e) {
+      res
+        .status(500)
+        .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
+    }
+  });
 
 module.exports = router;

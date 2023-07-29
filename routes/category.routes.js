@@ -8,7 +8,6 @@ router.get("/", async (req, res) => {
   try {
     const list = await Category.find({}).populate("classifire");
     list.sort((a, b) => (a.classifire.name > b.classifire.name ? 1 : -1));
-    console.log(list);
     res.send(
       list.map((item) => ({
         _id: item._id,
@@ -17,7 +16,6 @@ router.get("/", async (req, res) => {
       }))
     );
   } catch (e) {
-    console.log(e);
     res
       .status(500)
       .json({ message: "На сервере произошла ошибка. Попробуйте позже." });

@@ -41,8 +41,8 @@ router
     try {
       const response = {};
       const newProduct = await Product.create({
+        img: "https://w7.pngwing.com/pngs/446/762/png-transparent-computer-icons-e-commerce-business-service-cost-business-text-service-people.png",
         ...req.body,
-        classifire: req.body.classifire,
         showcase: req.showcase._id,
         owner: req.user._id,
       });
@@ -73,7 +73,6 @@ router
       );
       res.send(response);
     } catch (e) {
-      console.log(e);
       res
         .status(500)
         .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
@@ -188,7 +187,6 @@ router
         }
         res.send(response);
       } catch (e) {
-        console.log(e);
         res
           .status(500)
           .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
@@ -240,7 +238,6 @@ router
         }
         res.send(response);
       } catch (e) {
-        console.log(e);
         res
           .status(500)
           .json({ message: "На сервере произошла ошибка. Попробуйте позже." });
